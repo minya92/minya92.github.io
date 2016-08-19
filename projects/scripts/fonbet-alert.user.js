@@ -39,21 +39,25 @@ function getMatches() {
 
 function checkMatches() {
 	MATCHES.forEach(function(m){
-		if(!m.stop){ //Уже была ставка
+		if(!m.stop && m.currentTotal > 0){ //Уже была ставка и матч не закончился
 			var diff = m.startTotal - m.currentTotal;
 			if(diff != 0){ //ничего не изменилось
 				if(diff > 0){ // тотал уменшился
 					if(diff >= MIN_TOTAL) {
-						playSound();
-						alert('Ставь на ПОВЫШЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
+						audio.play();
+						//alert('Ставь на ПОВЫШЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
 						m.stop = true;
+                        document.getElementById('event' + m.id + 'over').onmousedown();
+                        document.getElementById('event' + m.id + 'over').onmouseup();
 					}
 				} else { // тотал увеличился
 					diff = diff - diff - diff; // -22 - (-22) - (-22) = 22
 					if(diff >= MAX_TOTAL) {
-						playSound();
-						alert('Ставь на ПОНИЖЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
+						audio.play();
+						//alert('Ставь на ПОНИЖЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
 						m.stop = true;
+                        document.getElementById('event' + m.id + 'under').onmousedown();
+                        document.getElementById('event' + m.id + 'under').onmouseup();
 					}
 				}
 			}
@@ -68,16 +72,12 @@ function debug(data, clear) {
     pre.innerHTML += JSON.stringify(data);
 }
 
-function playSound (){
-	var audio = document.createElement('audio');
-	audio.src = 'http://wav-library.net/sfx/ReturnTone/WavLibraryNet_ReturnTone33.wav';
-	audio.autoplay = true;
-}
-
 function main() {
     container = document.getElementById("lineContainer");
     pre = document.createElement("pre");
 	container.appendChild(pre);
+	audio = document.createElement('audio');
+	audio.src = 'http://wav-library.net/sfx/ReturnTone/WavLibraryNet_ReturnTone33.wav';
 	
     setInterval(function () {
 		getMatches();
