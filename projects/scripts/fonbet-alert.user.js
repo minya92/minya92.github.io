@@ -59,7 +59,7 @@ function checkMatches() {
 				if(diff > 0){ // тотал уменшился
 					if(diff >= m.MIN_TOTAL) {
 						audio.play();
-						alert('Ставь на ПОВЫШЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
+						//alert('Ставь на ПОВЫШЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
 						m.stop = true;
 						document.getElementById('event' + m.id + 'over').onmousedown();
 						document.getElementById('event' + m.id + 'over').onmouseup();
@@ -68,7 +68,7 @@ function checkMatches() {
 					diff = diff - diff - diff; // -22 - (-22) - (-22) = 22
 					if(diff >= m.MAX_TOTAL) {
 						audio.play();
-						alert('Ставь на ПОНИЖЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
+						//alert('Ставь на ПОНИЖЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
 						m.stop = true;
 						document.getElementById('event' + m.id + 'under').onmousedown();
 						document.getElementById('event' + m.id + 'under').onmouseup();
