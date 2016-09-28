@@ -45,17 +45,18 @@ function getMatches() {
 						match.MIN_TOTAL = TOTALS[3];
 						match.MAX_TOTAL = TOTALS[3];
 					}
-					if(match.startTotal < 80)
-						return; //если тотал меньше 80, жесткий выход
-					var pushMatch = true;
-					MATCHES.forEach(function(aMatch){
-						if(aMatch.id == match.id) {
-							pushMatch = false;
-							aMatch.currentTotal = match.startTotal;
+					if(match.startTotal > 80)
+					{	
+						var pushMatch = true;
+						MATCHES.forEach(function(aMatch){
+							if(aMatch.id == match.id) {
+								pushMatch = false;
+								aMatch.currentTotal = match.startTotal;
+							}
+						});
+						if(pushMatch){
+							MATCHES.push(match);
 						}
-					});
-					if(pushMatch){
-						MATCHES.push(match);
 					}
 				}
     }
