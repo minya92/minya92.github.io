@@ -20,12 +20,14 @@ var MATCHES = []; // текущие матчи
 //для отладки
 var TOTALS = [2, 3, 4, 5]; 
 
+//Страховочная ставка (пока одна)
+var STRAH = 5; 
 
 function getMatches() {
     var elements = document.getElementsByClassName("trEvent");
     for (var i = 0; i < elements.length; i++) {
         if ($(elements[i]).attr('style') != "display: none;"){
-			    var match = {};
+					var match = {};
 					match.id = $(elements[i]).attr('id').toString().replace(/\D+/, "");
 					match.startTotal = document.getElementById('event' + match.id + 'total').innerHTML;
 					match.name = document.getElementById('eventName' + match.id).childNodes[1].nodeValue; 
@@ -62,6 +64,25 @@ function getMatches() {
     }
 }
 
+
+//повышение >
+function UP (m, diff){
+	audio.play();
+	ALERT('Ставь на ПОВЫШЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
+	TABLE(m.name, m.startTotal, m.currentTotal, 'ПОВЫШЕНИЕ', diff);
+	document.getElementById('event' + m.id + 'over').onmousedown();
+	document.getElementById('event' + m.id + 'over').onmouseup();
+}
+
+//понижение <
+function DOWN (m, diff){
+	audio.play();
+	ALERT('Ставь на ПОНИЖЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
+	TABLE(m.name, m.startTotal, m.currentTotal, 'ПОНИЖЕНИЕ', diff);
+	document.getElementById('event' + m.id + 'under').onmousedown();
+	document.getElementById('event' + m.id + 'under').onmouseup();
+}
+
 function checkMatches() {
 	MATCHES.forEach(function(m, i){
 		if(!m.stop && m.currentTotal > 0){ //Уже была ставка и матч не закончился
@@ -69,24 +90,43 @@ function checkMatches() {
 			if(diff != 0){ //ничего не изменилось
 				if(diff > 0){ // тотал уменшился
 					if(diff >= m.MIN_TOTAL) {
-						audio.play();
-						//alert('Ставь на ПОВЫШЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
-						ALERT('Ставь на ПОВЫШЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
-						TABLE(m.name, m.startTotal, m.currentTotal, 'ПОВЫШЕНИЕ', diff);
-						m.stop = true;
-						document.getElementById('event' + m.id + 'over').onmousedown();
-						document.getElementById('event' + m.id + 'over').onmouseup();
+						UP(m, diff);
+						m.stop = '>';
 					}
 				} else { // тотал увеличился
 					diff = diff - diff - diff; // -22 - (-22) - (-22) = 22
 					if(diff >= m.MAX_TOTAL) {
-						audio.play();
-						//alert('Ставь на ПОНИЖЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
-						ALERT('Ставь на ПОНИЖЕНИЕ ' + m.name + ' БЫЛО: ' + m.startTotal + ' СТАЛО: ' + m.currentTotal);
-						TABLE(m.name, m.startTotal, m.currentTotal, 'ПОНИЖЕНИЕ', diff);
-						m.stop = true;
-						document.getElementById('event' + m.id + 'under').onmousedown();
-						document.getElementById('event' + m.id + 'under').onmouseup();
+						DOWN(m, diff);
+						m.stop = '<';
+					}
+				}
+			}
+		}
+		if(!m.vilka && m.stop == '<' && m.currentTotal > 0){ //Вилка на понижение
+			if(m.currentTotal <= m.startTotal){
+				UP(m, 'ВИЛКА');
+				m.vilka = true;
+			}
+		}
+		if(!m.vilka && m.stop == '>' && m.currentTotal > 0){ //Вилка на повышение
+			if(m.currentTotal >= m.startTotal){
+				DOWN(m, 'ВИЛКА');
+				m.vilka = true;
+			}
+		}
+		if(!m.strah && m.stop && m.currentTotal > 0){ //Страховка
+			var diff = m.startTotal - m.currentTotal;
+			if(diff != 0){ //ничего не изменилось
+				if(diff > 0){ // тотал уменшился
+					if(diff >= m.MIN_TOTAL + STRAH && m.stop == '>') {
+						UP(m, 'СТРАХОВКА');
+						m.strah = true;
+					}
+				} else { // тотал увеличился
+					diff = diff - diff - diff; // -22 - (-22) - (-22) = 22
+					if(diff >= m.MAX_TOTAL + STRAH && m.stop == '<') {
+						DOWN(m, 'СТРАХОВКА');
+						m.strah = true;
 					}
 				}
 			}
@@ -111,7 +151,7 @@ function ALERT(msg){
 function TABLE(name, startTotal, currTotal, type, diff){
 	var date = new Date();
 	var tr = document.createElement("tr");
-  tr.innerHTML = '<td>'+ date.toDateString() + '</td><td>' + date.toTimeString() + '</td><td>' + name + '</td><td>' + startTotal + '</td><td>' + currTotal + '</td><td>' + type + '</td><td>' + diff+ '</td>';
+	tr.innerHTML = '<td>'+ date.toDateString() + '</td><td>' + date.toTimeString() + '</td><td>' + name + '</td><td>' + startTotal + '</td><td>' + currTotal + '</td><td>' + type + '</td><td>' + diff+ '</td>';
 	table.appendChild(tr);
 }
 
